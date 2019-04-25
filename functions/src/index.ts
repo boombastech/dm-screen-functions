@@ -9,6 +9,8 @@ import * as functions from 'firebase-functions';
 //  response.send("Hello from Firebase!");
 // });
 
+admin.initializeApp();
+
 
 export const onCreateUser = functions.auth.user()
     .onCreate(user => admin.firestore().collection('/users').doc(user.uid).set({ displayName: user.displayName, id: user.uid }));
@@ -16,7 +18,7 @@ export const onCreateUser = functions.auth.user()
 export const onDeleteMapDeleteAllMarkers = functions.firestore.document('/users/{uid}/maps/{mapId}')
     .onDelete((snapshot, context) => {
         console.log(`Deleting markers for map id: ${snapshot.data()!.id}`);
-        return admin.firestore().collection(`/users/${context.auth!.uid}/markers`)
+        return admin.firestore().collection(`/users/${context.params.uid}/markers`)
             .where('mapId', '==', snapshot.data()!.id).get()
             .then(results => {
                 console.log(`Markers for map: ${results.size}`);
